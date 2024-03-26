@@ -1,4 +1,4 @@
-def _module_info(module, show_all=false) {
+def module_info(module, show_all=false) {
     print """
 -------------------------------------------------------------------------------
 ${module} ${params[module].version}
