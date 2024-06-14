@@ -39,7 +39,7 @@ ${module} ${params[module]._version}
 }
 
 /*
-Scrape the FASTQ files from one or more directories and group by sample name
+Scrape the FASTQ files from one or more directories, group by sample name,
 and partition into R1 and R2
 */
 def find_samples(run_dir) {
@@ -68,4 +68,14 @@ def find_samples(run_dir) {
             reads.findAll{ it =~ /_R1_|_1\./ },
             reads.findAll{ it =~ /_R2_|_2\./ }]
         }
+}
+
+/*
+Determine if sequencing is paired end
+*/
+def is_paired(samples) {
+    samples
+    .map {
+        it + [it[2].size() ? true : false]
+    }
 }
