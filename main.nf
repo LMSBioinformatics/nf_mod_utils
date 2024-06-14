@@ -10,7 +10,7 @@ ${module} ${params[module].version}
         print "  ${k} = ${v}"
     }
     if (show_all) {
-        print "Unused options:"
+        print "Available options:"
         text = ""
         params[module].settings.findAll{ ! it.value }.keySet().each{
             if ((text + "${it} ").length() <= 78) {
@@ -22,6 +22,17 @@ ${module} ${params[module].version}
         }
         if (text) {
             print "  " + text
+        }
+    }
+}
+
+def parse_params(module) {
+    params.findAll{it.key ==~ /${module}_.*/}.each {k, v ->
+        parsed_k = k.minus('${module}_')
+        if (params[module].settings.containsKey(parsed_k)) {
+            params[module].settings[parsed_k] = v
+        } else {
+            exit 1, "Unknown parameter passed: ${k}!"
         }
     }
 }
