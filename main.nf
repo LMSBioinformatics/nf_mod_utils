@@ -25,14 +25,3 @@ ${module} ${params[module].version}
         }
     }
 }
-
-def parse_params(module) {
-    params.findAll{it.key ==~ /${module}_.*/}.each {k, v ->
-        parsed_k = k.minus('${module}_')
-        if (params[module].settings.containsKey(parsed_k)) {
-            params[module].settings[parsed_k] = v
-        } else {
-            exit 1, "Unknown parameter passed: ${k}!"
-        }
-    }
-}
