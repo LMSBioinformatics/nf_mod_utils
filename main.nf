@@ -1,3 +1,7 @@
+/*
+Pretty-print the utilised and available parameters defined in a submodule's
+`module.config` file.
+*/
 def module_info(module, show_all=false) {
     if (!params.containsKey(module)) {
         return
@@ -13,7 +17,7 @@ ${module} ${params[module]._version}
         print "Defined options:"
     }
     params[module].findAll{ it.value }.each{ k, v ->
-        if (! k.startsWith('_')) {
+        if (k !~ /^_/) {
             print "  ${k} = ${v}"
         }
     }
@@ -32,4 +36,36 @@ ${module} ${params[module]._version}
             print "  " + text
         }
     }
+}
+
+/*
+Scrape the FASTQ files from one or more directories and group by sample name
+and partition into R1 and R2
+*/
+def find_samples(run_dir) {
+    run_globs =
+        run_dir
+        .split(',')
+        .collect { it + "/*.f*q.gz" }
+    channel
+        .fromPath(run_globs, checkIfExists: true)
+        .map { f ->
+            filename = f.getName() -~ /.*\//
+            basename = filename -~ /\..*$/
+            if (basename =~ /_S\d{1,2}_L00\d{1}_R[12]_001/) {
+                [basename -~ /_S\d{1,2}_L00\d{1}_R[12]_001/, f]
+            } else if (basename =~ /_S\d{1,2}_R[12]_001/) {
+                [basename -~ /_S\d{1,2}_R[12]_001/, f]
+            } else if (basename =~ /_[12]$/) {
+                [basename -~ /_[12]$/, f]
+            } else {
+                [basename, f]
+            }
+        }
+        .groupTuple(sort: true)
+        .map { sample_name, reads ->
+            [sample_name,
+            reads.findAll{ it =~ /_R1_|_1\./ },
+            reads.findAll{ it =~ /_R2_|_2\./ }]
+        }
 }
