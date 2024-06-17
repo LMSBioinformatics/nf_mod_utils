@@ -105,10 +105,11 @@ def chemistry_colour_n(read_id) {
 Count the number of reads across a set of samples
 */
 process count_reads {
+    tag "${name}"
+
     cpus 1
     memory 256.MB
     time 6.h
-    tag name
 
     input:
     tuple val(name), path(r1), path(r2)
