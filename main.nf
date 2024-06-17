@@ -115,7 +115,7 @@ process count_reads {
     tuple val(name), path(r1), path(r2)
 
     output:
-    tuple val(name), stdout(n_reads)
+    tuple val(name), stdout
 
     script:
     """
