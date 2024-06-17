@@ -108,16 +108,16 @@ process count_reads {
     cpus 1
     mem 256.MB
     time 6.h
-    tag "${name}"
+    tag name
 
     input:
     tuple val(name), path(r1), path(r2)
 
     output:
-    stdout n_reads
+    tuple val(name), stdout(n_reads)
 
     script:
     """
-    bc <<< "$(zcat ${r1} ${r2} | wc -l)/4"
+    bc <<< "\$(zcat ${r1} ${r2} | wc -l)/4"
     """
 }
