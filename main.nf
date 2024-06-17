@@ -106,7 +106,7 @@ Count the number of reads across a set of samples
 */
 process count_reads {
     cpus 1
-    mem 256.MB
+    memory 256.MB
     time 6.h
     tag name
 
