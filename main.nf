@@ -63,19 +63,61 @@ def find_samples(run_dir) {
             }
         }
         .groupTuple(sort: true)
-        .map { sample_name, reads ->
-            [sample_name,
+        .map { name, reads ->
+            [name,
             reads.findAll{ it =~ /_R1_|_1\./ },
             reads.findAll{ it =~ /_R2_|_2\./ }]
         }
 }
 
 /*
-Determine if sequencing is paired end
+Is the sequencing paired end?
 */
 def is_paired(samples) {
     samples
     .map {
         it + [it[2].size() ? true : false]
     }
+}
+
+def chemistry_colour_n(read_id) {
+    // Determine if sequencing data is from a 1/2-colour chemistry, which
+    // gives pG trailing bases, or a 4-colour chemistry, which gives pA
+    // trailing bases.
+    switch(guess_illumina_machine(read_id)) {
+        case ~/NextSeq.*/:
+        case ~/MiniSeq.*/:
+        case ~/NovaSeq.*/:
+            return 2
+        case ~/iSeq.*/:
+            return 1
+        case 'GAIIx':
+        case 'MiSeq':
+        case ~/HiSeq.*/:
+            return 4
+        case 'Unknown':
+            // return 2, which is the most common currently
+            return 2
+    }
+}
+
+/*
+Count the number of reads across a set of samples
+*/
+process count_reads {
+    cpus 1
+    mem 256.MB
+    time 6.h
+    tag "${name}"
+
+    input:
+    tuple val(name), path(r1), path(r2)
+
+    output:
+    stdout n_reads
+
+    script:
+    """
+    bc <<< "$(zcat ${r1} ${r2} | wc -l)/4"
+    """
 }
