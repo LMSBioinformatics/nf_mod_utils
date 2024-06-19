@@ -50,6 +50,9 @@ def find_samples(run_dir) {
     channel
         .fromPath(run_globs, checkIfExists: true)
         .map { f ->
+            if (f =~ /Undetermined/) {
+                return
+            }
             filename = f.getName() -~ /.*\//
             basename = filename -~ /\..*$/
             if (basename =~ /_S\d{1,2}_L00\d{1}_R[12]_001/) {
