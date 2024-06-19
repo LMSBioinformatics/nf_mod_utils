@@ -42,11 +42,11 @@ ${module} ${params[module]._version}
 Scrape the FASTQ files from one or more directories, group by sample name,
 and partition into R1 and R2
 */
-def find_samples(run_dir) {
+def find_samples(run_dir, glob="*.f*q.gz") {
     run_globs =
         run_dir
         .split(',')
-        .collect { it + "/*.f*q.gz" }
+        .collect { "${it}/${glob}" }
     channel
         .fromPath(run_globs, checkIfExists: true)
         .map { f ->
