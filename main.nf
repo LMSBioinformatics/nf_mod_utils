@@ -1,3 +1,5 @@
+import static groovy.xml.XmlSlurper.*
+
 /*
 Pretty-print the utilised and available parameters defined in a submodule's
 `module.config` file.
@@ -36,6 +38,44 @@ ${module} ${params[module]._version}
             print "  " + text
         }
     }
+}
+
+/*
+If `run_dir` is the root of an Illumina output directory, parse the XML outputs
+into a `run_info` map and return an updated `run_dir` for use downstream
+*/
+def get_run_info(run_dir) {
+    run_info = [:]
+    // Parse the run reports
+    f = new File("${run_dir}/RunInfo.xml")
+    if (f.exists()) {
+        x = new XmlSlurper().parse(f)
+        run_info["id"] = x.Run.@Id
+        run_info["read_length"] =
+            x.Run.Reads.children()
+                .findAll{ it.@IsIndexedRead == "N" }
+                .collect{ it.@NumCycles }
+                .join("+")
+        run_info["lanes"] = x.Run.FlowcellLayout.@LaneCount
+    } else {
+        run_info["id"] = run_dir -~ /\/$/ -~ /.*\//
+    }
+    f = new File("${run_dir}/RunParameters.xml")
+    if (f.exists()) {
+        x = new XmlSlurper().parse(f)
+        run_info["experiment_name"] = x.ExperimentName.text()
+        run_info["software_version"] =
+            x.ApplicationVersion.text() ?: x.Setup.ApplicationVersion.text()
+        run_info["rta_version"] = x.RTAVersion.text() ?: x.RtaVersion.text()
+    }
+    // Find the most up-to-date analysis
+    if (file("${run_dir}/Analysis").exists()) {
+        run_dir = files("${run_dir}/Analysis/*", type: "dir").sort()[-1] + "/Data/fastq"
+    } else if (file("${run_dir}/Alignment_1").exists()) {
+        alignment = files("${run_dir}/Alignment_*", type: "dir").sort()[-1]
+        run_dir = file(alignment + "/*/Fastq", type: "dir")[0]
+    }
+    [run_info, run_dir]
 }
 
 /*
