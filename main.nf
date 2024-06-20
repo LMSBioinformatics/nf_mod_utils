@@ -83,12 +83,8 @@ Scrape the FASTQ files from one or more directories, group by sample name,
 and partition into R1 and R2
 */
 def find_samples(run_dir, glob="*.f*q.gz") {
-    run_globs =
-        run_dir
-        .split(',')
-        .collect { "${it}/${glob}" }
     channel
-        .fromPath(run_globs, checkIfExists: true)
+        .fromPath("${run_dir}/${glob}", checkIfExists: true)
         .map { f ->
             if (f =~ /Undetermined/) {
                 return
