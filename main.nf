@@ -64,9 +64,9 @@ def get_run_info(run_dir) {
     if (f.exists()) {
         x = new XmlSlurper().parse(f)
         run_info["experiment_name"] = x.ExperimentName.text()
-        run_info["software_version"] =
+        run_info["illumina"] =
             x.ApplicationVersion.text() ?: x.Setup.ApplicationVersion.text()
-        run_info["rta_version"] = x.RTAVersion.text() ?: x.RtaVersion.text()
+        run_info["rta"] = x.RTAVersion.text() ?: x.RtaVersion.text()
     }
     // Find the most up-to-date analysis
     if (file("${run_dir}/Analysis").exists()) {
