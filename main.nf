@@ -51,12 +51,12 @@ def get_run_info(run_dir) {
     if (f.exists()) {
         x = new XmlSlurper().parse(f)
         run_info["id"] = x.Run.@Id
-        run_info["read_length"] =
+        run_info["Read length"] =
             x.Run.Reads.children()
                 .findAll{ it.@IsIndexedRead == "N" }
                 .collect{ it.@NumCycles }
                 .join("+")
-        run_info["lanes"] = x.Run.FlowcellLayout.@LaneCount
+        run_info["Lanes"] = x.Run.FlowcellLayout.@LaneCount
     } else {
         run_info["id"] = run_dir -~ /\/$/ -~ /.*\//
     }
