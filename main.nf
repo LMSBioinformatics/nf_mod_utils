@@ -174,14 +174,14 @@ process count_undetermined {
 
     publishDir "${params.outdir}/qc",
         mode: "copy",
-        pattern: "Top_undetermined_barcodes.csv"
+        pattern: "Undetermined_barcodes.csv"
 
     input:
-    tuple val(run_dir)
+    val(run_dir)
 
     output:
-    tuple stdout
-    path()
+    stdout
+    path "Undetermined_barcodes.csv" optional true
 
     script:
     """
@@ -200,7 +200,7 @@ process count_undetermined {
 
     total = 0
     if barcodes:
-        with open('Top_undetermined_barcodes.csv', 'w') as F:
+        with open('Undetermined_barcodes.csv', 'w') as F:
             for k, v in sorted(
                     barcodes.items(), key=lambda x: x[1], reverse=True):
                 total += v
