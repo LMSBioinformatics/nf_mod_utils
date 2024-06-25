@@ -161,3 +161,50 @@ process count_reads {
     bc <<< "\$(zcat ${r1} ${r2} | wc -l)/4"
     """
 }
+
+
+/*
+Count the number of "Undetermined" reads from demux and form a table of the
+most common
+*/
+process count_undetermined {
+    cpus 1
+    memory 256.MB
+    time 6.h
+
+    publishDir "${params.outdir}/qc",
+        mode: "copy",
+        pattern: "Top_undetermined_barcodes.csv"
+
+    input:
+    tuple val(run_dir)
+
+    output:
+    tuple stdout
+    path()
+
+    script:
+    """
+    #!/usr/bin/python3
+
+    from collections import defaultdict as dd
+    import gzip
+    from pathlib import Path
+
+    barcodes = dd(int)
+    for f in Path('${run_dir}').glob('Undetermined_*'):
+        with gzip.open(f, mode='rt') as F:
+            for i, l in enumerate(F):
+                if i % 4 != 0: continue
+                barcodes[l.split(':')[-1].strip()] += 1
+
+    total = 0
+    if barcodes:
+        with open('Top_undetermined_barcodes.csv', 'w') as F:
+            for k, v in sorted(
+                    barcodes.items(), key=lambda x: x[1], reverse=True):
+                total += v
+                print(f'{k},{v}', file=F)
+    print(total)
+    """
+}
