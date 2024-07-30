@@ -104,8 +104,8 @@ def find_samples(run_dir, glob="*.f*q.gz") {
         .groupTuple(sort: true)
         .map { name, reads ->
             [name,
-            reads.findAll{ it =~ /_R1_|_1\./ },
-            reads.findAll{ it =~ /_R2_|_2\./ }]
+            reads.findAll{ it =~ /_R1_001|_1\./ },
+            reads.findAll{ it =~ /_R2_001|_2\./ }]
         }
 }
 
