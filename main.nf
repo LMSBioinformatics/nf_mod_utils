@@ -91,11 +91,20 @@ def find_samples(run_dir, glob="*.f*q.gz") {
             }
             filename = f.getName() -~ /.*\//
             basename = filename -~ /\..*$/
-            if (basename =~ /_S\d{1,2}_L00\d{1}_R[12]_001/) {
-                [basename -~ /_S\d{1,2}_L00\d{1}_R[12]_001/, f]
-            } else if (basename =~ /_S\d{1,2}_R[12]_001/) {
-                [basename -~ /_S\d{1,2}_R[12]_001/, f]
+            if (basename =~ /_S\d{1,2}_L00\d{1}_R[12]_001$/) {
+                // matches ..._Sx_L00x_Rx_001
+                [basename -~ /_S\d{1,2}_L00\d{1}_R[12]_001$/, f]
+            } else if (basename =~ /_S\d{1,2}_R[12]_001$/) {
+                // matches ..._Sx_Rx_001
+                [basename -~ /_S\d{1,2}_R[12]_001$/, f]
+            } else if (basename =~ /_R[12]_001$/) {
+                // matches ..._Rx_001
+                [basename -~ /_R[12]_001$/, f]
+            } else if (basename =~ /_R[12]$/) {
+                // matches ..._Rx
+                [basename -~ /_R[12]$/, f]
             } else if (basename =~ /_[12]$/) {
+                // matches ..._x
                 [basename -~ /_[12]$/, f]
             } else {
                 [basename, f]
@@ -104,8 +113,8 @@ def find_samples(run_dir, glob="*.f*q.gz") {
         .groupTuple(sort: true)
         .map { name, reads ->
             [name,
-            reads.findAll{ it =~ /_R1_001|_1\./ },
-            reads.findAll{ it =~ /_R2_001|_2\./ }]
+            reads.findAll{ it =~ /_R1_001|_R1|_1\./ },
+            reads.findAll{ it =~ /_R2_001|_R2|_2\./ }]
         }
 }
 
