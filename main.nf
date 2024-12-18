@@ -91,12 +91,12 @@ def find_samples(run_dir, glob="*.f*q.gz") {
             }
             filename = f.getName() -~ /.*\//
             basename = filename -~ /\..*$/
-            if (basename =~ /_S\d{1,2}_L00\d{1}_R[12]_001$/) {
+            if (basename =~ /_S\d{1,3}_L00\d{1}_R[12]_001$/) {
                 // matches ..._Sx_L00x_Rx_001
-                [basename -~ /_S\d{1,2}_L00\d{1}_R[12]_001$/, f]
+                [basename -~ /_S\d{1,3}_L00\d{1}_R[12]_001$/, f]
             } else if (basename =~ /_S\d{1,2}_R[12]_001$/) {
                 // matches ..._Sx_Rx_001
-                [basename -~ /_S\d{1,2}_R[12]_001$/, f]
+                [basename -~ /_S\d{1,3}_R[12]_001$/, f]
             } else if (basename =~ /_R[12]_001$/) {
                 // matches ..._Rx_001
                 [basename -~ /_R[12]_001$/, f]
