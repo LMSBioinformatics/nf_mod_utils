@@ -1,4 +1,4 @@
-import static groovy.xml.XmlSlurper.*
+import groovy.xml.XmlSlurper
 
 /*
 Pretty-print the utilised and available parameters defined in a submodule's
